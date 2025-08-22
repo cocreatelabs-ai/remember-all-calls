@@ -55,9 +55,10 @@ resource "aws_db_instance" "main" {
   username = var.db_username
   password = var.db_password
   
-  publicly_accessible = true
-  skip_final_snapshot = true
-  deletion_protection = false
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  publicly_accessible    = true
+  skip_final_snapshot    = true
+  deletion_protection    = false
 
   tags = {
     Name = "${var.project_name} Database"

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Call - Call Analyzer{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-upload me-2"></i>Upload Call Recording
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select Audio File</label>
+                        <input type="file" class="form-control" id="file" name="file" 
+                               accept=".mp3,.wav,.m4a,.mp4" required>
+                        <div class="form-text">
+                            Supported formats: MP3, WAV, M4A, MP4 (max 100MB)
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="uploadBtn">
+                            <i class="fas fa-upload me-1"></i>Upload Call
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title"><i class="fas fa-info-circle me-2"></i>How it works</h6>
+                <ol class="mb-0">
+                    <li>Upload your call recording</li>
+                    <li>Our AI will automatically transcribe the audio</li>
+                    <li>Generate a summary and extract action items</li>
+                    <li>View results on the dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const maxSize = 100 * 1024 * 1024; // 100MB
+        if (file.size > maxSize) {
+            alert('File is too large. Maximum size is 100MB.');
+            e.target.value = '';
+        }
+    }
+});
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    const btn = document.getElementById('uploadBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Uploading...';
+    btn.disabled = true;
+});
+</script>
+{% endblock %}

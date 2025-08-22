@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Call Analyzer{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tachometer-alt me-2"></i>Call Dashboard</h2>
+    <a href="{{ url_for('upload_call') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i>Upload New Call
+    </a>
+</div>
+
+{% if calls %}
+<div class="row">
+    {% for call in calls %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-file-audio me-1"></i>{{ call.filename }}
+                </h6>
+                <span class="badge status-badge
+                    {% if call.status == 'completed' %}bg-success
+                    {% elif call.status == 'failed' %}bg-danger
+                    {% elif call.status in ['transcribing', 'processing'] %}bg-warning
+                    {% else %}bg-secondary{% endif %}">
+                    {% if call.status == 'uploaded' %}
+                        <i class="fas fa-clock me-1"></i>Uploaded
+                    {% elif call.status == 'transcribing' %}
+                        <i class="fas fa-spinner fa-spin me-1"></i>Transcribing
+                    {% elif call.status == 'processing' %}
+                        <i class="fas fa-cog fa-spin me-1"></i>Processing
+                    {% elif call.status == 'completed' %}
+                        <i class="fas fa-check me-1"></i>Complete
+                    {% elif call.status == 'failed' %}
+                        <i class="fas fa-times me-1"></i>Failed
+                    {% endif %}
+                    {{ call.status|title }}
+                </span>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-2">
+                    <small><i class="fas fa-calendar me-1"></i>{{ call.upload_timestamp if call.upload_timestamp else 'N/A' }}</small>
+                </p>
+                
+                {% if call.duration_seconds %}
+                <p class="text-muted mb-2">
+                    <small><i class="fas fa-stopwatch me-1"></i>{{ "%.1f"|format(call.duration_seconds) }}s</small>
+                </p>
+                {% endif %}
+                
+                <div class="d-grid">
+                    <a href="{{ url_for('call_detail', call_id=call.id) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-phone-alt fa-5x text-muted mb-3"></i>
+    <h4 class="text-muted">No calls uploaded yet</h4>
+    <p class="text-muted">Upload your first call recording to get started with AI-powered analysis.</p>
+    <a href="{{ url_for('upload_call') }}" class="btn btn-primary btn-lg">
+        <i class="fas fa-upload me-2"></i>Upload Your First Call
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-refresh status for processing calls
+function refreshStatus() {
+    const statusBadges = document.querySelectorAll('.status-badge');
+    statusBadges.forEach(badge => {
+        if (badge.textContent.includes('Transcribing') || badge.textContent.includes('Processing')) {
+            // Find the call ID from the URL
+            const card = badge.closest('.card');
+            const detailLink = card.querySelector('a[href*="/call/"]');
+            if (detailLink) {
+                const callId = detailLink.href.match(/\/call\/(\d+)/)[1];
+                fetch(`/api/call-status/${callId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'completed') {
+                            location.reload();
+                        }
+                    })
+                    .catch(error => console.log('Status check failed:', error));
+            }
+        }
+    });
+}
+
+// Check for processing calls every 10 seconds
+setInterval(refreshStatus, 10000);
+</script>
+{% endblock %}

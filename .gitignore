@@ -7,4 +7,4 @@ terraform/*.tfvars
 terraform/*.tfvars.json
 terraform/*.plan
 terraform/crash.log
-terraform/crash.*.log
+terraform/crash.*.log.*/.venv/*
