@@ -1,2 +1,10 @@
 .env
 terraform/terraform.tfvars
+terraform/.terraform/*
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfvars
+terraform/*.tfvars.json
+terraform/*.plan
+terraform/crash.log
+terraform/crash.*.log
